@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { formatCoordinates, formatApproxCoordinates } from '../utils/gps';
 import { formatTimestamp } from '../utils/timestamp';
 import { MediaMetadata, supabase } from '../utils/supabase';
 import Map from '../components/Map';
 import { addWatermark, addVideoWatermark } from '../utils/watermark';
+import QRCode from 'qrcode';
 
 const VerifyScreen = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [metadata, setMetadata] = useState<MediaMetadata | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isProcessingWatermark, setIsProcessingWatermark] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const verificationUrl = `${window.location.origin}/verify/${id}`;
 
   const getMediaType = (url: string): 'image' | 'video' => {
@@ -88,6 +91,26 @@ const VerifyScreen = () => {
     }
   }, [metadata, verificationUrl]);
 
+  useEffect(() => {
+    const generateQRCode = async () => {
+      try {
+        const qrCode = await QRCode.toDataURL(verificationUrl, {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#ffffff',
+          },
+        });
+        setQrCodeUrl(qrCode);
+      } catch (err) {
+        console.error('Failed to generate QR code:', err);
+      }
+    };
+
+    generateQRCode();
+  }, [verificationUrl]);
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
   };
@@ -128,6 +151,10 @@ const VerifyScreen = () => {
     } catch (err) {
       console.error('Download failed:', err);
     }
+  };
+
+  const handleNewCapture = () => {
+    navigate('/');
   };
 
   const renderLocationLabel = () => {
@@ -178,10 +205,10 @@ const VerifyScreen = () => {
           ) : (
             <>
               <img
-    src={previewUrl || metadata.media_url}
-    alt="Verified media"
-    className="max-w-full max-h-[80vh] object-contain"
-  />
+                src={previewUrl || metadata.media_url}
+                alt="Verified media"
+                className="max-w-full max-h-[80vh] object-contain"
+              />
               {isProcessingWatermark && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                   <div className="text-white text-sm">Processing watermark...</div>
@@ -251,6 +278,28 @@ const VerifyScreen = () => {
             Download Media
           </button>
         </div>
+
+        {/* QR Code */}
+        {qrCodeUrl && (
+          <div className="bg-white p-4 rounded-lg shadow-sm text-center">
+            <h3 className="text-sm font-medium text-gray-500 mb-2">
+              Scan to View
+            </h3>
+            <img
+              src={qrCodeUrl}
+              alt="QR Code"
+              className="w-48 h-48 mx-auto"
+            />
+          </div>
+        )}
+
+        {/* Capture New Media Button */}
+        <button
+          onClick={handleNewCapture}
+          className="w-full btn btn-secondary"
+        >
+          Capture New Media
+        </button>
 
         {/* Share Options */}
         <div className="bg-white p-4 rounded-lg shadow-sm">
@@ -379,7 +428,6 @@ const VerifyScreen = () => {
               <span className="text-xs mt-1">Instagram</span>
             </button>
           </div>
-
         </div>
       </div>
     </div>

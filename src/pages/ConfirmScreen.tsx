@@ -72,7 +72,7 @@ const ConfirmScreen = () => {
       });
 
       sessionStorage.setItem('uploadResult', JSON.stringify(result));
-      navigate('/published');
+      navigate(`/verify/${result.public_url}`);
     } catch (error) {
       setError(`Failed to upload media: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
@@ -125,16 +125,48 @@ const ConfirmScreen = () => {
             </p>
             <div className="mt-2">
               <label className="text-sm text-gray-500">Location Precision</label>
-              <select
-                value={gpsPrecision}
-                onChange={(e) => setGpsPrecision(e.target.value as GpsPrecision)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-              >
-                <option value="exact">Exact Location</option>
-                <option value="5mile">5-mile Radius</option>
-                <option value="10mile">10-mile Radius</option>
-                <option value="20mile">20-mile Radius</option>
-              </select>
+              <div className="mt-2 space-y-2">
+                <label className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input
+                    type="radio"
+                    value="exact"
+                    checked={gpsPrecision === 'exact'}
+                    onChange={(e) => setGpsPrecision(e.target.value as GpsPrecision)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                  />
+                  <span className="ml-3 text-sm text-gray-900">Exact Location</span>
+                </label>
+                <label className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input
+                    type="radio"
+                    value="5mile"
+                    checked={gpsPrecision === '5mile'}
+                    onChange={(e) => setGpsPrecision(e.target.value as GpsPrecision)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                  />
+                  <span className="ml-3 text-sm text-gray-900">5-mile Radius</span>
+                </label>
+                <label className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input
+                    type="radio"
+                    value="10mile"
+                    checked={gpsPrecision === '10mile'}
+                    onChange={(e) => setGpsPrecision(e.target.value as GpsPrecision)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                  />
+                  <span className="ml-3 text-sm text-gray-900">10-mile Radius</span>
+                </label>
+                <label className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input
+                    type="radio"
+                    value="20mile"
+                    checked={gpsPrecision === '20mile'}
+                    onChange={(e) => setGpsPrecision(e.target.value as GpsPrecision)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                  />
+                  <span className="ml-3 text-sm text-gray-900">20-mile Radius</span>
+                </label>
+              </div>
             </div>
           </div>
 
